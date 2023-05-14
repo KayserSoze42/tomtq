@@ -21,7 +21,7 @@ public class TOMTQRestController {
     }
 
     @GetMapping("/tomtq/show")
-    public ObjectNode findShowByTitle(@RequestParam(value = "title", defaultValue = "603") String title) {
+    public ObjectNode findShowByTitle(@RequestParam(value = "title", defaultValue = "The Good Place") String title) {
         return TMDbApiController.searchShowByTitle(title);
     }
 
