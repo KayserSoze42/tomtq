@@ -1,10 +1,10 @@
-package com.oxiemoron.tomtq.rest.models.details;
+package com.oxiemoron.tomtq.rest.models.details.movie;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
-public class DetailsResponse{
+public class MovieDetailsResponse {
     @JsonProperty("adult")
     public boolean getAdult() {
         return this.adult; }

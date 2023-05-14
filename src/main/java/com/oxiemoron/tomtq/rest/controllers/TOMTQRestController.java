@@ -2,6 +2,7 @@ package com.oxiemoron.tomtq.rest.controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,23 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class TOMTQRestController {
 
 
-    @GetMapping("/tomtq/search/movie")
+    @GetMapping("/tomtq/movie")
     public ObjectNode findMovieByTitle(@RequestParam(value = "title", defaultValue = "Lord Of The Rings") String title) {
         return TMDbApiController.searchMovieByTitle(title);
     }
 
-    @GetMapping("/tomtq/get/movie")
-    public ObjectNode getMovieById(@RequestParam(value = "id", defaultValue = "Lord Of The Rings") int id) {
+    @GetMapping("/tomtq/movie/{id}")
+    public ObjectNode getMovieById(@PathVariable(value = "id") int id) {
         return TMDbApiController.getMovieById(id);
     }
 
-    @GetMapping("/tomtq/search/show")
-    public ObjectNode findShowByTitle(@RequestParam(value = "title", defaultValue = "Lord Of The Rings") String title) {
+    @GetMapping("/tomtq/show")
+    public ObjectNode findShowByTitle(@RequestParam(value = "title", defaultValue = "603") String title) {
         return TMDbApiController.searchShowByTitle(title);
     }
 
-    @GetMapping("/tomtq/get/show")
-    public ObjectNode getShowById(@RequestParam(value = "id", defaultValue = "Lord Of The Rings") int id) {
-        return TMDbApiController.getMovieById(id);
+    @GetMapping("/tomtq/show/{id}")
+    public ObjectNode getShowById(@PathVariable(value = "id") int id) {
+        return TMDbApiController.getShowById(id);
     }
 }

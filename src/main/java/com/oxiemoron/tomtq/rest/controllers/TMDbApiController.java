@@ -2,11 +2,12 @@ package com.oxiemoron.tomtq.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.oxiemoron.tomtq.rest.models.details.DetailsResponse;
-import com.oxiemoron.tomtq.rest.models.search.movie.MovieResponse;
-import com.oxiemoron.tomtq.rest.models.search.movie.MovieResult;
-import com.oxiemoron.tomtq.rest.models.search.show.ShowResponse;
-import com.oxiemoron.tomtq.rest.models.search.show.ShowResult;
+import com.oxiemoron.tomtq.rest.models.details.movie.MovieDetailsResponse;
+import com.oxiemoron.tomtq.rest.models.details.show.ShowDetailsResponse;
+import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResponse;
+import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResult;
+import com.oxiemoron.tomtq.rest.models.search.show.ShowSearchResponse;
+import com.oxiemoron.tomtq.rest.models.search.show.ShowSearchResult;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,16 +24,16 @@ public class TMDbApiController {
     public static ObjectNode searchMovieByTitle(String title) {
 
         String queryUrl = String.format(SEARCH_URL, "movie", API_KEY, title.replace(" ", "+"));
-        MovieResponse response;
+        MovieSearchResponse response;
         String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
         try {
-            response = objectMapper.readValue(new URL(queryUrl), MovieResponse.class);
-            ArrayList<MovieResult> results = response.getResults();
+            response = objectMapper.readValue(new URL(queryUrl), MovieSearchResponse.class);
+            ArrayList<MovieSearchResult> results = response.getResults();
 
             int resultNo = 0;
 
-            for (MovieResult result : results) {
+            for (MovieSearchResult result : results) {
                 resultNo += 1;
 
                 ObjectNode output = objectMapper.createObjectNode();
@@ -57,18 +58,17 @@ public class TMDbApiController {
 
     public static ObjectNode searchShowByTitle(String title) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String queryUrl = String.format(SEARCH_URL, "tv", API_KEY, title.replace(" ", "+"));
-        ShowResponse response;
+        ShowSearchResponse response;
         String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
         try {
-            response = objectMapper.readValue(new URL(queryUrl), ShowResponse.class);
-            ArrayList<ShowResult> results = response.getResults();
+            response = objectMapper.readValue(new URL(queryUrl), ShowSearchResponse.class);
+            ArrayList<ShowSearchResult> results = response.getResults();
 
             int resultNo = 0;
 
-            for (ShowResult result : results) {
+            for (ShowSearchResult result : results) {
                 resultNo += 1;
 
                 ObjectNode output = objectMapper.createObjectNode();
@@ -93,13 +93,12 @@ public class TMDbApiController {
 
     public static ObjectNode getMovieById(int id) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String queryUrl = String.format(DETAILS_URL, "movie", id, API_KEY);
-        DetailsResponse response;
+        MovieDetailsResponse response;
         ObjectNode output = objectMapper.createObjectNode();
         String jsonOutput = "{N/A}";
         try {
-            response = objectMapper.readValue(new URL(queryUrl), DetailsResponse.class);
+            response = objectMapper.readValue(new URL(queryUrl), MovieDetailsResponse.class);
 
             output.put("id", response.getId());
             output.put("title", response.getTitle());
@@ -116,17 +115,16 @@ public class TMDbApiController {
 
     public static ObjectNode getShowById(int id) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String queryUrl = String.format(DETAILS_URL, "tv", id, API_KEY);
-        DetailsResponse response;
+        ShowDetailsResponse response;
         ObjectNode output = objectMapper.createObjectNode();
         String jsonOutput = "{N/A}";
         try {
-            response = objectMapper.readValue(new URL(queryUrl), DetailsResponse.class);
+            response = objectMapper.readValue(new URL(queryUrl), ShowDetailsResponse.class);
 
             output.put("id", response.getId());
-            output.put("title", response.getTitle());
-            output.put("release_date", response.getRelease_date());
+            output.put("name", response.getName());
+            output.put("first_air_date", response.getFirst_air_date());
             output.put("overview", response.getOverview());
 
             jsonOutput = objectMapper.writeValueAsString(output);

@@ -3,7 +3,7 @@ package com.oxiemoron.tomtq.rest.models.search.show;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 
-public class ShowResponse{
+public class ShowSearchResponse {
     @JsonProperty("page")
     public int getPage() {
         return this.page; }
@@ -11,11 +11,11 @@ public class ShowResponse{
         this.page = page; }
     int page;
     @JsonProperty("results")
-    public ArrayList<ShowResult> getResults() {
+    public ArrayList<ShowSearchResult> getResults() {
         return this.results; }
-    public void setResults(ArrayList<ShowResult> results) {
+    public void setResults(ArrayList<ShowSearchResult> results) {
         this.results = results; }
-    ArrayList<ShowResult> results;
+    ArrayList<ShowSearchResult> results;
     @JsonProperty("total_pages")
     public int getTotal_pages() {
         return this.total_pages; }

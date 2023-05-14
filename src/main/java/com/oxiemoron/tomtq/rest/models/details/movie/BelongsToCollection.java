@@ -1,4 +1,4 @@
-package com.oxiemoron.tomtq.rest.models.details;
+package com.oxiemoron.tomtq.rest.models.details.movie;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

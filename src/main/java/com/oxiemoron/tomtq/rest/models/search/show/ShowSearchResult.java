@@ -1,9 +1,9 @@
-package com.oxiemoron.tomtq.rest.models.search.movie;
+package com.oxiemoron.tomtq.rest.models.search.show;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 
-public class MovieResult {
+public class ShowSearchResult {
     @JsonProperty("adult")
     public boolean getAdult() {
         return this.adult;
@@ -48,6 +48,17 @@ public class MovieResult {
 
     int id;
 
+    @JsonProperty("origin_country")
+    public ArrayList<String> getOrigin_country() {
+        return this.origin_country;
+    }
+
+    public void setOrigin_country(ArrayList<String> origin_country) {
+        this.origin_country = origin_country;
+    }
+
+    ArrayList<String> origin_country;
+
     @JsonProperty("original_language")
     public String getOriginal_language() {
         return this.original_language;
@@ -59,16 +70,16 @@ public class MovieResult {
 
     String original_language;
 
-    @JsonProperty("original_title")
-    public String getOriginal_title() {
-        return this.original_title;
+    @JsonProperty("original_name")
+    public String getOriginal_name() {
+        return this.original_name;
     }
 
-    public void setOriginal_title(String original_title) {
-        this.original_title = original_title;
+    public void setOriginal_name(String original_name) {
+        this.original_name = original_name;
     }
 
-    String original_title;
+    String original_name;
 
     @JsonProperty("overview")
     public String getOverview() {
@@ -103,38 +114,27 @@ public class MovieResult {
 
     String poster_path;
 
-    @JsonProperty("release_date")
-    public String getRelease_date() {
-        return this.release_date;
+    @JsonProperty("first_air_date")
+    public String getFirst_air_date() {
+        return this.first_air_date;
     }
 
-    public void setRelease_date(String release_date) {
-        this.release_date = release_date;
+    public void setFirst_air_date(String first_air_date) {
+        this.first_air_date = first_air_date;
     }
 
-    String release_date;
+    String first_air_date;
 
-    @JsonProperty("title")
-    public String getTitle() {
-        return this.title;
+    @JsonProperty("name")
+    public String getName() {
+        return this.name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    String title;
-
-    @JsonProperty("video")
-    public boolean getVideo() {
-        return this.video;
-    }
-
-    public void setVideo(boolean video) {
-        this.video = video;
-    }
-
-    boolean video;
+    String name;
 
     @JsonProperty("vote_average")
     public double getVote_average() {

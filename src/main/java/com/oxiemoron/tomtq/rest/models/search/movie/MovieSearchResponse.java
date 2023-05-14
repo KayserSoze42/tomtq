@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
-public class MovieResponse{
+public class MovieSearchResponse {
     @JsonProperty("page")
     public int getPage() {
         return this.page; }
@@ -12,11 +12,11 @@ public class MovieResponse{
         this.page = page; }
     int page;
     @JsonProperty("results")
-    public ArrayList<MovieResult> getResults() {
+    public ArrayList<MovieSearchResult> getResults() {
         return this.results; }
-    public void setResults(ArrayList<MovieResult> results) {
+    public void setResults(ArrayList<MovieSearchResult> results) {
         this.results = results; }
-    ArrayList<MovieResult> results;
+    ArrayList<MovieSearchResult> results;
     @JsonProperty("total_pages")
     public int getTotal_pages() {
         return this.total_pages; }
