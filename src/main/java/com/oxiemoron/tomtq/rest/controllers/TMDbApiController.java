@@ -1,9 +1,9 @@
 package com.oxiemoron.tomtq.rest.controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.oxiemoron.tomtq.rest.models.details.movie.MovieDetailsResponse;
+import com.oxiemoron.tomtq.rest.models.details.person.PersonDetailsResponse;
 import com.oxiemoron.tomtq.rest.models.details.show.ShowDetailsResponse;
 import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResponse;
 import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResult;
@@ -28,7 +28,7 @@ public class TMDbApiController {
 
 
 
-    public static ObjectNode searchPersonByName(String name) {
+    public static ObjectNode searchPersonWithName(String name) {
 
         String queryUrl = String.format(SEARCH_URL, "person", API_KEY, name.replace(" ", "+"));
         PersonSearchResponse response;
@@ -58,7 +58,6 @@ public class TMDbApiController {
 
         String queryUrl = String.format(SEARCH_URL, "movie", API_KEY, title.replace(" ", "+"));
         MovieSearchResponse response;
-        String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
         try {
             response = objectMapper.readValue(new URL(queryUrl), MovieSearchResponse.class);
@@ -81,22 +80,20 @@ public class TMDbApiController {
                 outputs.put(Integer.toString(resultNo), jsonOutput);
             }
 
-            jsonOutputs = objectMapper.writeValueAsString(outputs);
-
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
         return outputs;
     }
 
-    public static ObjectNode searchMoviesWithCast(String cast) {
+    public static ObjectNode searchMovieWithCast(String cast) {
 
         StringBuilder castQuery = new StringBuilder();
         String delimiter = "";
 
         for (String person : cast.split(",")) {
 
-            ObjectNode currentPerson = searchPersonByName(person.replace(" ", "+"));
+            ObjectNode currentPerson = searchPersonWithName(person.replace(" ", "+"));
             int currentId = currentPerson.get("id").asInt();
             castQuery.append(delimiter);
             castQuery.append(currentId);
@@ -106,7 +103,6 @@ public class TMDbApiController {
 
         String queryUrl = String.format(DISCOVER_URL, "movie", API_KEY, castQuery.toString());
         MovieSearchResponse response;
-        String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
 
         try {
@@ -130,8 +126,6 @@ public class TMDbApiController {
 
                 outputs.put(Integer.toString(resultNo), jsonOutput);
             }
-
-            jsonOutputs = objectMapper.writeValueAsString(outputs);
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -146,7 +140,6 @@ public class TMDbApiController {
 
         String queryUrl = String.format(SEARCH_URL, "tv", API_KEY, title.replace(" ", "+"));
         ShowSearchResponse response;
-        String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
         try {
             response = objectMapper.readValue(new URL(queryUrl), ShowSearchResponse.class);
@@ -169,8 +162,6 @@ public class TMDbApiController {
                 outputs.put(Integer.toString(resultNo), jsonOutput);
             }
 
-            jsonOutputs = objectMapper.writeValueAsString(outputs);
-
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
@@ -184,7 +175,7 @@ public class TMDbApiController {
 
         for (String person : cast.split(",")) {
 
-            ObjectNode currentPerson = searchPersonByName(person.replace(" ", "+"));
+            ObjectNode currentPerson = searchPersonWithName(person.replace(" ", "+"));
             int currentId = currentPerson.get("id").asInt();
             castQuery.append(delimiter);
             castQuery.append(currentId);
@@ -194,7 +185,6 @@ public class TMDbApiController {
 
         String queryUrl = String.format(DISCOVER_URL, "tv", API_KEY, castQuery.toString());
         ShowSearchResponse response;
-        String jsonOutputs = "{N/A}";
         ObjectNode outputs = objectMapper.createObjectNode();
 
         try {
@@ -219,8 +209,6 @@ public class TMDbApiController {
                 outputs.put(Integer.toString(resultNo), jsonOutput);
             }
 
-            jsonOutputs = objectMapper.writeValueAsString(outputs);
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -230,12 +218,30 @@ public class TMDbApiController {
 
     }
 
-    public static ObjectNode getMovieById(int id) {
+    public static ObjectNode getPersonWithId(int id) {
+
+        String queryUrl = String.format(DETAILS_URL, "person", id, API_KEY);
+        PersonDetailsResponse response;
+        ObjectNode output = objectMapper.createObjectNode();
+        try {
+            response = objectMapper.readValue(new URL(queryUrl), PersonDetailsResponse.class);
+
+            output.put("id", response.getId());
+            output.put("name", response.getName());
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return output;
+
+    }
+
+    public static ObjectNode getMovieWithId(int id) {
 
         String queryUrl = String.format(DETAILS_URL, "movie", id, API_KEY);
         MovieDetailsResponse response;
         ObjectNode output = objectMapper.createObjectNode();
-        String jsonOutput = "{N/A}";
         try {
             response = objectMapper.readValue(new URL(queryUrl), MovieDetailsResponse.class);
 
@@ -244,20 +250,17 @@ public class TMDbApiController {
             output.put("release_date", response.getRelease_date());
             output.put("overview", response.getOverview());
 
-            jsonOutput = objectMapper.writeValueAsString(output);
-
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
         return output;
     }
 
-    public static ObjectNode getShowById(int id) {
+    public static ObjectNode getShowWithId(int id) {
 
         String queryUrl = String.format(DETAILS_URL, "tv", id, API_KEY);
         ShowDetailsResponse response;
         ObjectNode output = objectMapper.createObjectNode();
-        String jsonOutput = "{N/A}";
         try {
             response = objectMapper.readValue(new URL(queryUrl), ShowDetailsResponse.class);
 
@@ -265,8 +268,6 @@ public class TMDbApiController {
             output.put("name", response.getName());
             output.put("first_air_date", response.getFirst_air_date());
             output.put("overview", response.getOverview());
-
-            jsonOutput = objectMapper.writeValueAsString(output);
 
         } catch (IOException ioE) {
             ioE.printStackTrace();

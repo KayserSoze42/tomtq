@@ -1,8 +1,6 @@
 package com.oxiemoron.tomtq.rest.models.search.person;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.oxiemoron.tomtq.rest.models.search.person.PersonSearchResult;
-
 import java.util.ArrayList;
 
 public class PersonSearchResponse{

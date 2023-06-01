@@ -6,19 +6,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
-
 @RestController
 public class TOMTQRestController {
 
     @GetMapping("/tomtq/movie")
-    public ObjectNode findMovieByTitle(@RequestParam(value = "title", required = false) String title,
+    public ObjectNode findMovieWithTitle(@RequestParam(value = "title", required = false) String title,
                                        @RequestParam(value = "cast", required = false) String cast) {
 
         if (title != null) {
             return TMDbApiController.searchMovieWithTitle(title);
         } else if (cast != null) {
-            return TMDbApiController.searchMoviesWithCast(cast);
+            return TMDbApiController.searchMovieWithCast(cast);
         } else {
             return TMDbApiController.searchMovieWithTitle("Lord Of The Rings");
         }
@@ -26,12 +24,12 @@ public class TOMTQRestController {
     }
 
     @GetMapping("/tomtq/movie/{id}")
-    public ObjectNode getMovieById(@PathVariable(value = "id") int id) {
-        return TMDbApiController.getMovieById(id);
+    public ObjectNode getMovieWithId(@PathVariable(value = "id") int id) {
+        return TMDbApiController.getMovieWithId(id);
     }
 
     @GetMapping("/tomtq/show")
-    public ObjectNode findShowByTitle(@RequestParam(value = "title", required = false) String title,
+    public ObjectNode findShowWithTitle(@RequestParam(value = "title", required = false) String title,
                                        @RequestParam(value = "cast", required = false) String cast) {
 
         if (title != null) {
@@ -45,12 +43,17 @@ public class TOMTQRestController {
     }
 
     @GetMapping("/tomtq/show/{id}")
-    public ObjectNode getShowById(@PathVariable(value = "id") int id) {
-        return TMDbApiController.getShowById(id);
+    public ObjectNode getShowWithId(@PathVariable(value = "id") int id) {
+        return TMDbApiController.getShowWithId(id);
     }
 
     @GetMapping("/tomtq/person")
-    public ObjectNode findPersonByName(@RequestParam(value = "query", defaultValue = "Robert Glenister") String query) {
-        return  TMDbApiController.searchPersonByName(query);
+    public ObjectNode findPersonWithName(@RequestParam(value = "query", defaultValue = "Robert Glenister") String query) {
+        return  TMDbApiController.searchPersonWithName(query);
+    }
+
+    @GetMapping("/tomtq/person/{id}")
+    public ObjectNode getPersonWithId(@PathVariable(value = "id") int id) {
+        return TMDbApiController.getPersonWithId(id);
     }
 }

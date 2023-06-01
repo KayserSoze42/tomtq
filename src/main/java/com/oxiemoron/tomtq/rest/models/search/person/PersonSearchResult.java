@@ -3,8 +3,6 @@ package com.oxiemoron.tomtq.rest.models.search.person;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-
 @JsonIgnoreProperties(value = { "known_for" })
 public class PersonSearchResult {
     @JsonProperty("adult")
