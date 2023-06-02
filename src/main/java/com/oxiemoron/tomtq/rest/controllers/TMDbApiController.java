@@ -2,15 +2,17 @@ package com.oxiemoron.tomtq.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.oxiemoron.tomtq.rest.models.details.movie.MovieDetailsResponse;
-import com.oxiemoron.tomtq.rest.models.details.person.PersonDetailsResponse;
-import com.oxiemoron.tomtq.rest.models.details.show.ShowDetailsResponse;
-import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResponse;
-import com.oxiemoron.tomtq.rest.models.search.movie.MovieSearchResult;
-import com.oxiemoron.tomtq.rest.models.search.person.PersonSearchResponse;
-import com.oxiemoron.tomtq.rest.models.search.person.PersonSearchResult;
-import com.oxiemoron.tomtq.rest.models.search.show.ShowSearchResponse;
-import com.oxiemoron.tomtq.rest.models.search.show.ShowSearchResult;
+import com.oxiemoron.tomtq.data.models.details.movie.MovieDetailsResponse;
+import com.oxiemoron.tomtq.data.models.details.person.PersonDetailsResponse;
+import com.oxiemoron.tomtq.data.models.details.show.ShowDetailsResponse;
+import com.oxiemoron.tomtq.data.models.search.movie.MovieSearchResponse;
+import com.oxiemoron.tomtq.data.models.search.movie.MovieSearchResult;
+import com.oxiemoron.tomtq.data.models.search.person.PersonSearchResponse;
+import com.oxiemoron.tomtq.data.models.search.person.PersonSearchResult;
+import com.oxiemoron.tomtq.data.models.search.show.ShowSearchResponse;
+import com.oxiemoron.tomtq.data.models.search.show.ShowSearchResult;
+import com.oxiemoron.tomtq.utils.exceptions.BadRequestException;
+import com.oxiemoron.tomtq.utils.exceptions.ItemNotFoundException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,51 +23,56 @@ public class TMDbApiController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String API_KEY = System.getenv("tmdb-api-key");
-    private static final String SEARCH_URL = "https://api.themoviedb.org/3/search/%s?api_key=%s&query=%s";
+    private static final String SEARCH_URL = "https://api.themoviedb.org/3/search/%s?api_key=%s&query=%s&page=%d";
     private static final String DETAILS_URL = "https://api.themoviedb.org/3/%s/%d?api_key=%s";
-
-    private static final String DISCOVER_URL = "https://api.themoviedb.org/3/discover/%s?api_key=%s&with_cast=%s";
-
+    private static final String DISCOVER_URL = "https://api.themoviedb.org/3/discover/%s?api_key=%s&with_cast=%s&page=%d";
 
 
-    public static ObjectNode searchPersonWithName(String name) {
+    public static ObjectNode searchPersonWithName(String name) throws ItemNotFoundException, BadRequestException {
 
-        String queryUrl = String.format(SEARCH_URL, "person", API_KEY, name.replace(" ", "+"));
+        String queryUrl = String.format(SEARCH_URL, "person", API_KEY, name.replace(" ", "+"), 1);
         PersonSearchResponse response;
-        String jsonOutput = "{N/A}";
         ObjectNode output = objectMapper.createObjectNode();
+
         try {
+
             response = objectMapper.readValue(new URL(queryUrl), PersonSearchResponse.class);
             ArrayList<PersonSearchResult> results = response.getResults();
 
-            int personId = results.get(0).getId();
-            String personName = results.get(0).getName();
+            int resultNo = 0;
 
-            output.put("id", personId);
-            output.put("original_name", personName);
-
+            output.put("id", results.get(0).getId());
+            output.put("name", results.get(0).getName());
 
         } catch (IOException ioE) {
-            ioE.printStackTrace();
+
+            throw new BadRequestException("Unable to process your request.. :(");
+
         } catch (IndexOutOfBoundsException iobE) {
-            System.out.println(iobE.toString());
+
+            throw new ItemNotFoundException("Person(s) not found with given query");
+
         }
+
         return output;
 
     }
 
-    public static ObjectNode searchMovieWithTitle(String title) {
+    public static ObjectNode searchMovieWithTitle(String title) throws ItemNotFoundException, BadRequestException {
 
-        String queryUrl = String.format(SEARCH_URL, "movie", API_KEY, title.replace(" ", "+"));
+        String queryUrl = String.format(SEARCH_URL, "movie", API_KEY, title.replace(" ", "+"), 1);
         MovieSearchResponse response;
         ObjectNode outputs = objectMapper.createObjectNode();
+
         try {
+
             response = objectMapper.readValue(new URL(queryUrl), MovieSearchResponse.class);
             ArrayList<MovieSearchResult> results = response.getResults();
 
             int resultNo = 0;
 
             for (MovieSearchResult result : results) {
+
                 resultNo += 1;
 
                 ObjectNode output = objectMapper.createObjectNode();
@@ -74,6 +81,7 @@ public class TMDbApiController {
                 output.put("title", result.getTitle());
                 output.put("release_date", result.getRelease_date());
                 output.put("overview", result.getOverview());
+                output.put("backdrop_path", result.getBackdrop_path());
 
                 String jsonOutput = objectMapper.writeValueAsString(output);
 
@@ -81,19 +89,37 @@ public class TMDbApiController {
             }
 
         } catch (IOException ioE) {
-            ioE.printStackTrace();
+
+            throw new BadRequestException("Unable to process your request.. :(");
+
+        } catch (IndexOutOfBoundsException iobE) {
+
+            throw new ItemNotFoundException("Movie(s) not found with given query");
+
         }
+
         return outputs;
     }
 
-    public static ObjectNode searchMovieWithCast(String cast) {
+    public static ObjectNode searchMovieWithCast(String cast) throws ItemNotFoundException, BadRequestException {
 
         StringBuilder castQuery = new StringBuilder();
         String delimiter = "";
 
         for (String person : cast.split(",")) {
 
-            ObjectNode currentPerson = searchPersonWithName(person.replace(" ", "+"));
+            ObjectNode currentPerson = null;
+
+            try {
+
+                currentPerson = searchPersonWithName(person.replace(" ", "+"));
+
+            } catch (BadRequestException e) {
+
+                throw new ItemNotFoundException("Person not found with given query");
+
+            }
+
             int currentId = currentPerson.get("id").asInt();
             castQuery.append(delimiter);
             castQuery.append(currentId);
@@ -101,7 +127,7 @@ public class TMDbApiController {
 
         }
 
-        String queryUrl = String.format(DISCOVER_URL, "movie", API_KEY, castQuery.toString());
+        String queryUrl = String.format(DISCOVER_URL, "movie", API_KEY, castQuery.toString(), 1);
         MovieSearchResponse response;
         ObjectNode outputs = objectMapper.createObjectNode();
 
@@ -109,6 +135,10 @@ public class TMDbApiController {
 
             response = objectMapper.readValue(new URL(queryUrl), MovieSearchResponse.class);
             ArrayList<MovieSearchResult> results = response.getResults();
+
+            if (results.size() == 0) {
+                throw new ItemNotFoundException("Movie(s) not found with given query");
+            }
 
             int resultNo = 0;
 
@@ -121,6 +151,7 @@ public class TMDbApiController {
                 output.put("title", result.getTitle());
                 output.put("release_date", result.getRelease_date());
                 output.put("overview", result.getOverview());
+                output.put("backdrop_path", result.getBackdrop_path());
 
                 String jsonOutput = objectMapper.writeValueAsString(output);
 
@@ -128,20 +159,22 @@ public class TMDbApiController {
             }
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+
+            throw new BadRequestException("Unable to process your request.. :(");
         }
 
         return outputs;
 
-
     }
 
-    public static ObjectNode searchShowWithTitle(String title) {
+    public static ObjectNode searchShowWithTitle(String title) throws ItemNotFoundException, BadRequestException {
 
-        String queryUrl = String.format(SEARCH_URL, "tv", API_KEY, title.replace(" ", "+"));
+        String queryUrl = String.format(SEARCH_URL, "tv", API_KEY, title.replace(" ", "+"), 1);
         ShowSearchResponse response;
         ObjectNode outputs = objectMapper.createObjectNode();
+
         try {
+
             response = objectMapper.readValue(new URL(queryUrl), ShowSearchResponse.class);
             ArrayList<ShowSearchResult> results = response.getResults();
 
@@ -156,6 +189,7 @@ public class TMDbApiController {
                 output.put("original_name", result.getOriginal_name());
                 output.put("first_air_date", result.getFirst_air_date());
                 output.put("overview", result.getOverview());
+                output.put("backdrop_path", result.getBackdrop_path());
 
                 String jsonOutput = objectMapper.writeValueAsString(output);
 
@@ -163,19 +197,35 @@ public class TMDbApiController {
             }
 
         } catch (IOException ioE) {
-            ioE.printStackTrace();
+
+            throw new BadRequestException("Unable to process your request.. :(");
+
+        } catch (IndexOutOfBoundsException ioobe) {
+
+            throw new ItemNotFoundException("Show(s) not found with given query");
         }
         return outputs;
     }
 
-    public static ObjectNode searchShowWithCast(String cast) {
+    public static ObjectNode searchShowWithCast(String cast) throws ItemNotFoundException, BadRequestException {
 
         StringBuilder castQuery = new StringBuilder();
         String delimiter = "";
 
         for (String person : cast.split(",")) {
 
-            ObjectNode currentPerson = searchPersonWithName(person.replace(" ", "+"));
+            ObjectNode currentPerson = null;
+
+            try {
+
+                currentPerson = searchPersonWithName(person.replace(" ", "+"));
+
+            } catch (BadRequestException e) {
+
+                throw new ItemNotFoundException("Person not found with given query");
+
+            }
+
             int currentId = currentPerson.get("id").asInt();
             castQuery.append(delimiter);
             castQuery.append(currentId);
@@ -183,7 +233,7 @@ public class TMDbApiController {
 
         }
 
-        String queryUrl = String.format(DISCOVER_URL, "tv", API_KEY, castQuery.toString());
+        String queryUrl = String.format(DISCOVER_URL, "tv", API_KEY, castQuery.toString(), 1);
         ShowSearchResponse response;
         ObjectNode outputs = objectMapper.createObjectNode();
 
@@ -203,6 +253,7 @@ public class TMDbApiController {
                 output.put("name", result.getName());
                 output.put("first_air_date", result.getFirst_air_date());
                 output.put("overview", result.getOverview());
+                output.put("backdrop_path", result.getBackdrop_path());
 
                 String jsonOutput = objectMapper.writeValueAsString(output);
 
@@ -210,7 +261,7 @@ public class TMDbApiController {
             }
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            throw new BadRequestException("Unable to process your request.. :(");
         }
 
         return outputs;
@@ -218,7 +269,7 @@ public class TMDbApiController {
 
     }
 
-    public static ObjectNode getPersonWithId(int id) {
+    public static ObjectNode getPersonWithId(int id) throws ItemNotFoundException{
 
         String queryUrl = String.format(DETAILS_URL, "person", id, API_KEY);
         PersonDetailsResponse response;
@@ -228,16 +279,17 @@ public class TMDbApiController {
 
             output.put("id", response.getId());
             output.put("name", response.getName());
+            output.put("imdb_id", response.getImdb_id());
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.out.println(ioe.getMessage());
+            throw new ItemNotFoundException("Person not found with given id");
         }
 
         return output;
-
     }
 
-    public static ObjectNode getMovieWithId(int id) {
+    public static ObjectNode getMovieWithId(int id) throws ItemNotFoundException {
 
         String queryUrl = String.format(DETAILS_URL, "movie", id, API_KEY);
         MovieDetailsResponse response;
@@ -251,12 +303,12 @@ public class TMDbApiController {
             output.put("overview", response.getOverview());
 
         } catch (IOException ioE) {
-            ioE.printStackTrace();
+            throw new ItemNotFoundException("Movie not found with given id");
         }
         return output;
     }
 
-    public static ObjectNode getShowWithId(int id) {
+    public static ObjectNode getShowWithId(int id) throws ItemNotFoundException{
 
         String queryUrl = String.format(DETAILS_URL, "tv", id, API_KEY);
         ShowDetailsResponse response;
@@ -270,7 +322,7 @@ public class TMDbApiController {
             output.put("overview", response.getOverview());
 
         } catch (IOException ioE) {
-            ioE.printStackTrace();
+            throw new ItemNotFoundException("Show not found with given id");
         }
         return output;
     }
