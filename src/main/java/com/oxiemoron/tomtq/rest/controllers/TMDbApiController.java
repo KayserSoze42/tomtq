@@ -3,6 +3,8 @@ package com.oxiemoron.tomtq.rest.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.oxiemoron.tomtq.data.models.details.movie.MovieDetailsResponse;
+import com.oxiemoron.tomtq.data.models.details.person.Cast;
+import com.oxiemoron.tomtq.data.models.details.person.CastDetailsResponse;
 import com.oxiemoron.tomtq.data.models.details.person.PersonDetailsResponse;
 import com.oxiemoron.tomtq.data.models.details.show.ShowDetailsResponse;
 import com.oxiemoron.tomtq.data.models.search.movie.MovieSearchResponse;
@@ -26,6 +28,9 @@ public class TMDbApiController {
     private static final String SEARCH_URL = "https://api.themoviedb.org/3/search/%s?api_key=%s&query=%s&page=%d";
     private static final String DETAILS_URL = "https://api.themoviedb.org/3/%s/%d?api_key=%s";
     private static final String DISCOVER_URL = "https://api.themoviedb.org/3/discover/%s?api_key=%s&with_cast=%s&page=%d";
+
+    private static final String MAGIC_URL = "https://api.themoviedb.org/3/person/%d/movie_credits?api_key=%s";
+                                // Will change to credits url when new magik be lern
 
 
     public static ObjectNode searchPersonWithName(String name) throws ItemNotFoundException, BadRequestException {
@@ -325,6 +330,50 @@ public class TMDbApiController {
             throw new ItemNotFoundException("Show not found with given id");
         }
         return output;
+    }
+
+    public static ObjectNode getCreditsForPerson(int id) throws Exception{
+
+        String queryUrl = String.format(MAGIC_URL, id, API_KEY);
+        CastDetailsResponse response;
+        ObjectNode outputs = objectMapper.createObjectNode();
+        try {
+
+            response = objectMapper.readValue(new URL(queryUrl), CastDetailsResponse.class);
+
+            ArrayList<Cast> casts = response.getCast(); // Hocus pokus, man I can't focus
+
+            int resultNo = 0;
+
+            for (Cast cast : casts) {
+
+                resultNo += 1;
+
+                ObjectNode output = objectMapper.createObjectNode();
+
+                output.put("adult", cast.getAdult()); // Lol, asking important questions here..
+                output.put("id", cast.getId());
+                output.put("character", cast.getCharacter()); // Good to have, see also: integrity
+                // Jokes aside, the magic part and the first piece of the puzzle
+                // IntelliJ froze (no kidding) as I wrote this, it knows..
+                output.put("credit_id", cast.getCredit_id());
+
+                String jsonOutput = objectMapper.writeValueAsString(output);
+
+                outputs.put(Integer.toString(resultNo), jsonOutput);
+
+            }
+
+
+        } catch (IOException ioe) {
+
+            throw new BadRequestException("Not sure about the logic and the names, keeping for noe");
+
+        }
+
+        return outputs;
+
+
     }
 
 
