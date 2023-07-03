@@ -39,5 +39,8 @@ class TomtqApplicationTests {
 
 	// Or who knows
 
+	// Stuck on the prev level, walking through and reading tutorials
+	// Brb
+
 
 }
