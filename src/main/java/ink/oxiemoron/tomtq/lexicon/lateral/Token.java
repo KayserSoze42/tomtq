@@ -1,13 +1,13 @@
 package ink.oxiemoron.tomtq.lexicon.lateral;
 
-public class Tolkien {
+public class Token {
 
     private Symbol symbol;
 
     private int left;
     private int right;
 
-    public Tolkien (int left, int right, Symbol symbol) {
+    public Token(int left, int right, Symbol symbol) {
         this.left = left;
         this.right = right;
         this.symbol = symbol;
