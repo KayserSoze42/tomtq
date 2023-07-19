@@ -1,4 +1,4 @@
-package ink.oxiemoron.tomtq.rest.controllers;
+package ink.oxiemoron.tomtq.rest.controllers.tmdb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -1,7 +1,8 @@
-package ink.oxiemoron.tomtq.rest.controllers;
+package ink.oxiemoron.tomtq.rest.controllers.tomtq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import ink.oxiemoron.tomtq.rest.controllers.tmdb.TMDbApiController;
 import ink.oxiemoron.tomtq.utils.exceptions.BadRequestException;
 import ink.oxiemoron.tomtq.utils.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
