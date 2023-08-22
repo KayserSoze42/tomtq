@@ -12,14 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 public class TOMTQPersonController {
 
     ObjectNode error = new ObjectMapper().createObjectNode();
     Logger logger = LoggerFactory.getLogger(TOMTQShowController.class);
 
     @GetMapping("/tomtq/person")
-    public ResponseEntity<ObjectNode> findPersonWithName(@RequestParam(value = "query", defaultValue = "Robert Glenister") String query) {
+    public ResponseEntity<ObjectNode> findPersonWithName(@RequestParam(value = "query", defaultValue = "Matt Berry") String query) {
 
         logger.info("Request /tomtq/person");
 
