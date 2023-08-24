@@ -312,6 +312,45 @@ public class TMDbApiController {
 
     }
 
+    public static ObjectNode searchShowWithLanguage(String language) throws ItemNotFoundException, BadRequestException {
+
+        String queryUrl = String.format(DISCOVER_URL, "tv", API_KEY, "", language.replace(" ", "+"), 1);
+        ShowSearchResponse response;
+        ObjectNode outputs = objectMapper.createObjectNode();
+
+        try {
+
+            response = objectMapper.readValue(new URL(queryUrl), ShowSearchResponse.class);
+            ArrayList<ShowSearchResult> results = response.getResults();
+
+            if (results.size() == 0) {
+                throw new ItemNotFoundException("Show(s) not found with given query");
+            }
+
+            int resultNo = 0;
+
+            for (ShowSearchResult result : results) {
+                resultNo += 1;
+
+                ObjectNode output = objectMapper.createObjectNode();
+
+                output.put("id", result.getId());
+                output.put("name", result.getName());
+                output.put("first_air_date", result.getFirst_air_date());
+                output.put("overview", result.getOverview());
+                output.put("backdrop_path", result.getBackdrop_path());
+
+                String jsonOutput = objectMapper.writeValueAsString(output);
+
+                outputs.put(Integer.toString(resultNo), jsonOutput);
+
+            }
+        } catch (IOException ioe) {
+            throw new BadRequestException("Hey, it's either me.. or you.. could it be both... or yet, a nun..");
+        }
+        return outputs;
+    }
+
     public static ObjectNode getPersonWithId(int id) throws ItemNotFoundException{
 
         String queryUrl = String.format(DETAILS_URL, "person", id, API_KEY);
@@ -410,7 +449,6 @@ public class TMDbApiController {
         }
 
         return outputs;
-
 
     }
 

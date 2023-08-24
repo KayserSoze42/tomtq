@@ -22,7 +22,8 @@ public class TOMTQShowController {
 
     @GetMapping("/tomtq/show")
     public ResponseEntity<ObjectNode> findShowWithTitle(@RequestParam(value = "title", required = false) String title,
-                                                        @RequestParam(value = "cast", required = false) String cast) {
+                                                        @RequestParam(value = "cast", required = false) String cast,
+                                                        @RequestParam(value = "lang", required = false) String lang){
 
         logger.info("Request /tomtq/show");
 
