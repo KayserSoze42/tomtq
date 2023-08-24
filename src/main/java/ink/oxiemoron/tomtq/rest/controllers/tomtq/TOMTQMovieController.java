@@ -8,7 +8,6 @@ import ink.oxiemoron.tomtq.utils.exceptions.ItemNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +21,9 @@ public class TOMTQMovieController {
     Logger logger = LoggerFactory.getLogger(TOMTQMovieController.class);
 
     @GetMapping("/tomtq/movie")
-    public ResponseEntity<ObjectNode> findMovieWithTitle(@RequestParam(value = "title", required = false) String title,
-                                                         @RequestParam(value = "cast", required = false) String cast) {
+    public ResponseEntity<ObjectNode> findMovie(@RequestParam(value = "title", required = false) String title,
+                                                @RequestParam(value = "cast", required = false) String cast,
+                                                @RequestParam(value = "lang", required = false) String lang) {
 
         logger.info("Request /tomtq/movie");
 
@@ -79,7 +79,34 @@ public class TOMTQMovieController {
                 return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 
             }
-        } else {
+
+        } else if (lang != null) {
+
+            logger.info("Query for movies with lang");
+
+            try {
+
+                return ResponseEntity.ok(TMDbApiController.searchMovieWithLanguage(lang));
+
+            } catch (BadRequestException bre) {
+
+                logger.error(bre.getMessage());
+                logger.error(lang);
+
+                error.put("message", bre.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+            } catch (ItemNotFoundException infe) {
+
+                logger.error(infe.getMessage());
+                logger.error(lang);
+
+                error.put("message", infe.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+
+            }
+        }
+        else {
 
             logger.info("No queries provided, using default");
 
